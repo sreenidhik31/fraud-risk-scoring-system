@@ -15,6 +15,15 @@ def load_artifact(path=ARTIFACT_PATH):
     return model, block_threshold, review_threshold, feature_names
 
 
+def get_decision(prob: float, block_threshold: float, review_threshold: float) -> str:
+    if prob >= block_threshold:
+        return "BLOCK"
+    elif prob >= review_threshold:
+        return "REVIEW"
+    else:
+        return "ALLOW"
+
+
 def score_one(transaction: dict):
     model, block_threshold, review_threshold, feature_names = load_artifact()
 
@@ -27,13 +36,7 @@ def score_one(transaction: dict):
     X = X[feature_names]
 
     prob = model.predict_proba(X)[0][1]
-
-    if prob >= block_threshold:
-        decision = "BLOCK"
-    elif prob >= review_threshold:
-        decision = "REVIEW"
-    else:
-        decision = "ALLOW"
+    decision = get_decision(prob, block_threshold, review_threshold)
 
     return {
         "fraud_probability": float(prob),
@@ -56,13 +59,7 @@ def score_batch(transactions: list[dict]):
 
     results = []
     for prob in probs:
-        if prob >= block_threshold:
-            decision = "BLOCK"
-        elif prob >= review_threshold:
-            decision = "REVIEW"
-        else:
-            decision = "ALLOW"
-
+        decision = get_decision(prob, block_threshold, review_threshold)
         results.append({
             "fraud_probability": float(prob),
             "decision": decision
