@@ -69,6 +69,7 @@ Why this matters:
 
 🏗️ System Architecture
 
+
 [ Input Transaction ]
         ↓
 [ ML Model → Fraud Probability ]
@@ -98,6 +99,7 @@ Why this matters:
 POST /score
 
 Returns:
+
 	•	fraud probability
 	•	decision (ALLOW / REVIEW / BLOCK)
 	•	risk tier
@@ -110,6 +112,7 @@ Returns:
 🔹 Batch Scoring
 
 POST /score-batch
+
 	•	Processes multiple transactions
 	•	Returns enriched results for each
 
@@ -118,12 +121,14 @@ POST /score-batch
 🔹 Policy Simulation
 
 POST /simulate-policy
+
 	•	Test custom thresholds without retraining
 	•	Evaluate decision outcomes instantly
 
 ⸻
 
 🔹 System Monitoring
+
 	•	/metrics → usage stats
 	•	/log-summary → logging configuration
 	•	/policy → active decision logic
@@ -132,6 +137,7 @@ POST /simulate-policy
 ⸻
 
 🧾 Example Output
+
 
 {
   "fraud_probability": 0.1052,
@@ -146,6 +152,7 @@ POST /simulate-policy
 ⸻
 
 🔍 Key Features
+
 	•	✅ Cost-sensitive decision optimization
 	•	✅ 3-tier risk policy (production-style)
 	•	✅ Batch + real-time scoring
@@ -157,6 +164,7 @@ POST /simulate-policy
 ⸻
 
 🧱 Tech Stack
+
 	•	Python
 	•	FastAPI
 	•	Scikit-learn
@@ -196,9 +204,6 @@ it is a decision optimization problem under asymmetric cost.
 👤 Author
 
 Sreenidhi k 
+
 M.S. Data Science & AI
 
-
-
-
-“Give resume bullet + elevator pitch” 🎯
