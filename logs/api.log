@@ -1,0 +1,32 @@
+2026-04-14 19:30:45,506 - INFO - score endpoint hit
+2026-04-14 19:30:45,506 - INFO - score endpoint hit
+2026-04-14 19:30:46,993 - INFO - score endpoint hit
+2026-04-14 19:56:47,698 - INFO - Request completed | method=GET | path=/ | status_code=200 | duration_seconds=0.0048
+2026-04-14 19:57:02,648 - INFO - Request completed | method=GET | path=/docs | status_code=200 | duration_seconds=0.0012
+2026-04-14 19:57:02,861 - INFO - Request completed | method=GET | path=/openapi.json | status_code=200 | duration_seconds=0.0228
+2026-04-14 20:06:34,274 - INFO - Request completed | method=GET | path=/ | status_code=200 | duration_seconds=0.0035
+2026-04-14 20:06:45,879 - INFO - Request completed | method=GET | path=/health | status_code=200 | duration_seconds=0.0104
+2026-04-14 20:06:53,819 - INFO - Request completed | method=GET | path=/ready | status_code=200 | duration_seconds=0.0057
+2026-04-14 20:07:06,953 - INFO - Request completed | method=GET | path=/model-info | status_code=200 | duration_seconds=0.008
+2026-04-14 20:07:18,377 - INFO - Request completed | method=GET | path=/policy | status_code=200 | duration_seconds=0.0031
+2026-04-14 20:09:16,750 - INFO - Request completed | method=GET | path=/ | status_code=200 | duration_seconds=0.005
+2026-04-14 20:09:22,902 - INFO - Request completed | method=GET | path=/docs | status_code=200 | duration_seconds=0.0006
+2026-04-14 20:09:22,992 - INFO - Request completed | method=GET | path=/openapi.json | status_code=200 | duration_seconds=0.0102
+2026-04-14 20:09:32,883 - INFO - Request completed | method=GET | path=/health | status_code=200 | duration_seconds=0.004
+2026-04-14 20:09:55,793 - INFO - Request completed | method=GET | path=/ready | status_code=200 | duration_seconds=0.0159
+2026-04-14 20:09:58,025 - INFO - Request completed | method=GET | path=/ready | status_code=200 | duration_seconds=0.0031
+2026-04-14 20:10:04,774 - INFO - Request completed | method=GET | path=/features | status_code=200 | duration_seconds=0.026
+2026-04-14 20:10:16,923 - INFO - Request completed | method=GET | path=/metrics | status_code=200 | duration_seconds=0.0261
+2026-04-14 20:10:27,112 - INFO - Request completed | method=GET | path=/model-info | status_code=200 | duration_seconds=0.002
+2026-04-14 20:11:42,622 - INFO - Request completed | method=GET | path=/policy | status_code=200 | duration_seconds=0.0075
+2026-04-14 20:11:52,891 - INFO - Request completed | method=GET | path=/model-info | status_code=200 | duration_seconds=0.0026
+2026-04-14 20:13:32,299 - INFO - Score request received | features_count=30
+2026-04-14 20:13:32,320 - INFO - Single scoring completed | decision=ALLOW | risk_tier=LOW | prob=0.1052
+2026-04-14 20:13:32,321 - INFO - Request completed | method=POST | path=/score | status_code=200 | duration_seconds=0.0249
+2026-04-14 20:14:09,606 - INFO - Batch scoring request received | batch_size=2
+2026-04-14 20:14:09,620 - INFO - Batch scoring completed | batch_size=2
+2026-04-14 20:14:09,622 - INFO - Request completed | method=POST | path=/score-batch | status_code=200 | duration_seconds=0.0336
+2026-04-14 20:15:02,075 - INFO - Policy simulation request received | probability=0.9800 | review_threshold=0.7000 | block_threshold=0.9000
+2026-04-14 20:15:02,076 - INFO - Policy simulation completed | decision=BLOCK | risk_tier=HIGH | prob=0.9800
+2026-04-14 20:15:02,077 - INFO - Request completed | method=POST | path=/simulate-policy | status_code=200 | duration_seconds=0.03
+2026-04-14 20:15:26,792 - INFO - Request completed | method=GET | path=/log-summary | status_code=200 | duration_seconds=0.003
