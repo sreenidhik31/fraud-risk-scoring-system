@@ -73,6 +73,12 @@ class PolicyBatchEvaluationRequest(BaseModel):
     review_threshold: Optional[float] = None
     block_threshold: Optional[float] = None
 
+class CostImpactSimulationRequest(BaseModel):
+    transactions: List[Dict[str, float]]
+    review_threshold: Optional[float] = None
+    block_threshold: Optional[float] = None
+    baseline_review_threshold: float = 0.5
+    baseline_block_threshold: float = 0.9
 
 # --------------------------
 # Helpers
@@ -244,6 +250,42 @@ def validate_transaction_schema(txn: Dict[str, float], context: str = "transacti
                 "extra_features": extra
             }
         )
+    
+def validate_threshold_pair(review_t: float, block_t: float) -> None:
+    if not (0 <= review_t <= 1 and 0 <= block_t <= 1):
+        raise HTTPException(status_code=400, detail="thresholds must be between 0 and 1")
+
+    if review_t >= block_t:
+        raise HTTPException(
+            status_code=400,
+            detail="review_threshold must be less than block_threshold"
+        )
+
+
+def evaluate_results_with_thresholds(
+    model_results: List[Dict[str, object]],
+    review_t: float,
+    block_t: float
+) -> List[Dict[str, object]]:
+    evaluated_results = []
+
+    for result in model_results:
+        prob = float(result["fraud_probability"])
+        simulated_decision = get_decision_from_thresholds(prob, review_t, block_t)
+
+        enriched = {
+            "fraud_probability": prob,
+            "decision": simulated_decision,
+            "risk_tier": get_risk_tier(prob, review_t, block_t),
+            "confidence_band": get_confidence_band(prob),
+            "reason": decision_reason(prob, simulated_decision, review_t, block_t),
+            "decision_cost": get_decision_cost(simulated_decision),
+            "thresholds": threshold_info(review_t, block_t),
+            "business_impact": get_business_impact(simulated_decision)
+        }
+        evaluated_results.append(enriched)
+
+    return evaluated_results
 
 
 # --------------------------
@@ -463,6 +505,90 @@ def evaluate_policy_batch(request: PolicyBatchEvaluationRequest) -> Dict[str, ob
     except Exception as e:
         logger.error(f"Policy batch evaluation error | error={str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/simulate-cost-impact")
+def simulate_cost_impact(request: CostImpactSimulationRequest) -> Dict[str, object]:
+    try:
+        logger.info(
+            f"Cost impact simulation request received | batch_size={len(request.transactions)}"
+        )
+
+        if not request.transactions:
+            raise HTTPException(status_code=400, detail="Batch cannot be empty")
+
+        review_t = request.review_threshold if request.review_threshold is not None else review_threshold
+        block_t = request.block_threshold if request.block_threshold is not None else block_threshold
+
+        baseline_review_t = request.baseline_review_threshold
+        baseline_block_t = request.baseline_block_threshold
+
+        validate_threshold_pair(review_t, block_t)
+        validate_threshold_pair(baseline_review_t, baseline_block_t)
+
+        for txn in request.transactions:
+            validate_transaction_schema(txn, context="cost impact simulation")
+
+        model_results = score_batch(request.transactions)
+
+        current_results = evaluate_results_with_thresholds(model_results, review_t, block_t)
+        baseline_results = evaluate_results_with_thresholds(model_results, baseline_review_t, baseline_block_t)
+
+        current_summary = summarize_decisions(current_results)
+        baseline_summary = summarize_decisions(baseline_results)
+
+        current_cost = estimate_batch_decision_cost(current_results)
+        baseline_cost = estimate_batch_decision_cost(baseline_results)
+
+        average_probability = round(
+            sum(float(r["fraud_probability"]) for r in current_results) / len(current_results),
+            6
+        )
+
+        cost_difference = baseline_cost - current_cost
+
+        logger.info(
+            f"Cost impact simulation completed | batch_size={len(current_results)} "
+            f"| current_cost={current_cost} | baseline_cost={baseline_cost} "
+            f"| cost_difference={cost_difference}"
+        )
+
+        return {
+            "batch_size": len(current_results),
+            "average_fraud_probability": average_probability,
+            "current_policy": {
+                "thresholds": threshold_info(review_t, block_t),
+                "decision_summary": current_summary,
+                "estimated_total_decision_cost": current_cost
+            },
+            "baseline_policy": {
+                "thresholds": {
+                    "review_threshold": baseline_review_t,
+                    "block_threshold": baseline_block_t
+                },
+                "decision_summary": baseline_summary,
+                "estimated_total_decision_cost": baseline_cost
+            },
+            "comparison": {
+                "cost_difference_vs_baseline": cost_difference,
+                "improvement": (
+                    "lower_cost_than_baseline"
+                    if current_cost < baseline_cost
+                    else "higher_or_equal_cost_than_baseline"
+                )
+            },
+            "policy_summary": {
+                "objective": "Compare cost impact of active policy versus baseline policy"
+            },
+            "governance": governance_info()
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Cost impact simulation error | error={str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
 
 # --------------------------

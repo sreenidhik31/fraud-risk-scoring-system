@@ -193,3 +193,30 @@ def test_evaluate_policy_batch_returns_summary():
 def test_evaluate_policy_batch_rejects_empty_batch():
     res = client.post("/evaluate-policy-batch", json={"transactions": []})
     assert res.status_code == 400
+
+def test_simulate_cost_impact_returns_comparison():
+    txn = valid_transaction()["data"]
+    res = client.post("/simulate-cost-impact", json={
+        "transactions": [txn, txn]
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert "current_policy" in data
+    assert "baseline_policy" in data
+    assert "comparison" in data
+    assert "cost_difference_vs_baseline" in data["comparison"]
+
+
+def test_simulate_cost_impact_rejects_empty_batch():
+    res = client.post("/simulate-cost-impact", json={"transactions": []})
+    assert res.status_code == 400
+
+
+def test_simulate_cost_impact_rejects_invalid_baseline_thresholds():
+    txn = valid_transaction()["data"]
+    res = client.post("/simulate-cost-impact", json={
+        "transactions": [txn],
+        "baseline_review_threshold": 0.95,
+        "baseline_block_threshold": 0.80
+    })
+    assert res.status_code == 400
